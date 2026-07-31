@@ -9,14 +9,21 @@ mainFunc = do
     putStrLn "Enter image path:"
     path <- getLine
 
-    putStrLn "Enter pixel at X:"
-    pixelXPosInput <- getLine
-    let pixelXPos = read pixelXPosInput :: Int
+    readingDynImgResult <- readImage path :: IO ( Either String DynamicImage )
 
-    putStrLn "Enter pixel at Y:"
-    pixelYPosInput <- getLine
-    let pixelYPos = read pixelYPosInput :: Int
+    case readingDynImgResult of
+       Left errorMessage ->
+          putStrLn ("Failed to load image: " ++ errorMessage)
+      
+       Right dynImg -> do
+          putStrLn ("Img loaded successfully!")
+          
+          let convertedImage = convertRGB8 dynImg :: Image PixelRGB8
 
-    let image = readImage path
+          let testPixel = pixelAt convertedImage 256 256 :: PixelRGB8
+          
+          let (PixelRGB8 r g b) = testPixel
+
+          putStrLn ("Loaded pixel: " ++ show r ++ ", " ++ show g ++ ", " ++ show b)
     
-    putStrLn (show pixelXPos)
+
