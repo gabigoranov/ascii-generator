@@ -6,6 +6,7 @@ import Codec.Picture
 import Codec.Picture.Metadata
 import Ascii.ImageRenderer (renderImage)
 import Ascii.ImageParser (getRawImageInfo, parseRawImageInfo)
+import Ascii.Downsampling.NearestNeighbour (downsampleNN)
 
 -- Main program flow
 mainFunc :: IO ()
@@ -28,6 +29,7 @@ mainFunc = do
                   putStrLn ("Width: " ++ show width ++ " Height: " ++ show height )
           
                   let convertedImage = convertRGB8 dynImg :: Image PixelRGB8
-          
-                  renderImage convertedImage width height 0 0    
+                  downsampledImage <- downsampleNN convertedImage 16
+
+                  renderImage downsampledImage 16 16 0 0    
 
