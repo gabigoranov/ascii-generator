@@ -29,6 +29,6 @@ renderImage image width height x y = do
 
     if nextY > y
         then putStrLn [asciiChar]   
-        else putStr [asciiChar]
+        else putStr [asciiChar, ' ']
 
     renderImage image width height nextX nextY 
