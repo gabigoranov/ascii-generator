@@ -12,9 +12,7 @@ renderImage _ _ _ _ (-1) = return ()
 renderImage image width height x y = do
     let pixel = pixelAt image x y :: PixelRGB8
                   
-    let (PixelRGB8 r g b) = pixel
-
-    let perceivedBrightness = calculatePerceivedBrightness (fromIntegral r) (fromIntegral g) (fromIntegral b)
+    let perceivedBrightness = calculatePerceivedBrightness pixel
     let normalizedBrightness = normalizePerceivedBrightness perceivedBrightness 
     let brightnessBracket = getBrightnessBracket normalizedBrightness 
 

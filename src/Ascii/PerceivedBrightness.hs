@@ -3,6 +3,7 @@ module Ascii.PerceivedBrightness (
     normalizePerceivedBrightness,
     getBrightnessBracket
 ) where
+import Codec.Picture
 
 redBrightnessModifier :: Float
 redBrightnessModifier = 0.2126
@@ -14,11 +15,13 @@ blueBrightnessModifier :: Float
 blueBrightnessModifier = 0.0722
 
 -- Calculates the approximate brightness level on a scale simillar to our vision
-calculatePerceivedBrightness :: Int -> Int -> Int -> Float
-calculatePerceivedBrightness r g b = 
-    ( fromIntegral r * redBrightnessModifier ) + 
-    ( fromIntegral g * greenBrightnessModifier ) +
-    ( fromIntegral b * blueBrightnessModifier ) 
+calculatePerceivedBrightness :: PixelRGB8 -> Float
+calculatePerceivedBrightness pixel =
+    let (PixelRGB8 r g b) = pixel
+    in 
+        ( fromIntegral r * redBrightnessModifier ) + 
+        ( fromIntegral g * greenBrightnessModifier ) +
+        ( fromIntegral b * blueBrightnessModifier ) 
 
 -- Normalizes the perceived brightness on a scale from 0 - 1
 normalizePerceivedBrightness :: Float -> Float

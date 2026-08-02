@@ -26,6 +26,9 @@ source-repository head
 library
   exposed-modules:
       Ascii.CharRamp
+      Ascii.Downsampling.ImageChunker
+      Ascii.Downsampling.ImageConverter
+      Ascii.Downsampling.MajorityVote
       Ascii.Downsampling.NearestNeighbour
       Ascii.ImageParser
       Ascii.ImageRenderer
