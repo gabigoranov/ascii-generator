@@ -25,6 +25,10 @@ source-repository head
 
 library
   exposed-modules:
+      Ascii.CharRamp
+      Ascii.ImageParser
+      Ascii.ImageRenderer
+      Ascii.PerceivedBrightness
       Lib
   other-modules:
       Paths_ascii_generator
