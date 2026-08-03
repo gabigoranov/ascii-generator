@@ -57,7 +57,7 @@ downsampleMV image desiredSize = do
 
     let chunkSize = getChunkSize width desiredSize 
 
-    putStrLn ("Downsampling to " ++ show desiredSize ++ " px with chunk size of " ++ show chunkSize ++ " px")
+    putStrLn ("Downsampling to " ++ show desiredSize ++ " from a width of: " ++ show width ++ " and height of: " ++ show height ++ " px with chunk size of " ++ show chunkSize ++ " px")
 
     let chunkedImage = chunkPixelMatrix pixelMatrix height chunkSize 0
 

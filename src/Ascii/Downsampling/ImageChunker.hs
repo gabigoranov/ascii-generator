@@ -40,12 +40,13 @@ getListOfChunks :: [[[PixelRGB8]]] -> Int -> Int -> Int -> Int -> [[[PixelRGB8]]
 getListOfChunks flatChunkedImage chunkCols chunkSize currChunk currRow =
     if currChunk >= chunkCols
         then 
-            if currRow >= (length flatChunkedImage) - chunkSize
+            if currRow > (length flatChunkedImage) - chunkSize
                 then []
                 
                 else getListOfChunks flatChunkedImage chunkCols chunkSize 0 (currRow + chunkSize)
         else
-            let chunkedRows = take chunkSize flatChunkedImage
+            let remainingRows = drop currRow flatChunkedImage 
+                chunkedRows = take chunkSize remainingRows
                 heads = map (\row -> row !! currChunk) chunkedRows
 
             in heads : getListOfChunks flatChunkedImage chunkCols chunkSize (currChunk + 1) currRow

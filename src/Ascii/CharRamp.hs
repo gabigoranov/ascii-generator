@@ -3,5 +3,5 @@ module Ascii.CharRamp (
 ) where
 
 asciiRamp :: String
-asciiRamp = " .:-=+*#%@"
+asciiRamp = "@%#*+=-:. "
 
