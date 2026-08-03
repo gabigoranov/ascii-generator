@@ -45,7 +45,7 @@ getListOfChunks flatChunkedImage chunkCols chunkSize currChunk currRow =
                 
                 else getListOfChunks flatChunkedImage chunkCols chunkSize 0 (currRow + chunkSize)
         else
-            let remainingRows = drop currRow flatChunkedImage 
+            let remainingRows = drop currRow flatChunkedImage -- slice only the remaining rows to not get stuck
                 chunkedRows = take chunkSize remainingRows
                 heads = map (\row -> row !! currChunk) chunkedRows
 
