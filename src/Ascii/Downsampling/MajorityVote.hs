@@ -49,15 +49,13 @@ getMVDownsampledPixel pixelMatrix =
     in flattened !! finalIndex 
 
 
-downsampleMV :: Image PixelRGB8 -> Int -> IO (Image PixelRGB8)
+downsampleMV :: Image PixelRGB8 -> Int -> IO ([[PixelRGB8]])
 downsampleMV image desiredSize = do
     let pixelMatrix = juicyToMatrix image
 
     let (height, width) = (length pixelMatrix, length (pixelMatrix !! 0))
 
     let chunkSize = getChunkSize width desiredSize 
-
-    putStrLn ("Downsampling to " ++ show desiredSize ++ " from a width of: " ++ show width ++ " and height of: " ++ show height ++ " px with chunk size of " ++ show chunkSize ++ " px")
 
     let chunkedImage = chunkPixelMatrix pixelMatrix height chunkSize 0
 
@@ -66,5 +64,4 @@ downsampleMV image desiredSize = do
     let downsampledChunks = map getMVDownsampledPixel listOfChunks 
 
     let downsampledMatrix = listToMatrix desiredSize downsampledChunks
-
-    return ( matrixToImage downsampledMatrix )
+    return downsampledMatrix

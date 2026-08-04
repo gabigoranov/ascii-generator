@@ -3,7 +3,28 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/topics/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: haskell-debug-adapter-0.0.42.0@sha256:9ee489104fff0c5c4b5c6542bce61013e8b0cb47fceca4c69018ac42cab43557,7175
+    pantry-tree:
+      sha256: d4dac062f2ee05474e6f69a0924d8d3f55910f05dd98a17f1992cd582cfce652
+      size: 3076
+  original:
+    hackage: haskell-debug-adapter-0.0.42.0
+- completed:
+    hackage: ghci-dap-0.0.27.0@sha256:333348023c5a6ed320fdf0412fac1ae3ed421b5f855fa7521c60f644f54aad4a,4605
+    pantry-tree:
+      sha256: 6b721c60428cfb0048b59d539ba64a4977e3b3e2ce0633696df28d1b18407527
+      size: 5228
+  original:
+    hackage: ghci-dap-0.0.27.0
+- completed:
+    hackage: haskell-dap-0.0.16.0@sha256:5ee4fba7ce1b8220f486a5251a941e6cd739ab2330e8f25efc5af553a4e1c61d,944
+    pantry-tree:
+      sha256: a757fbe6b8d1ca75a46cc9546d5bfaa903531f312e4266b7b24c62427a792c21
+      size: 315
+  original:
+    hackage: haskell-dap-0.0.16.0
 snapshots:
 - completed:
     sha256: 74b41f766415e985473d1e27befeb0394ed62f95295da1ec630a48ba84751c1c

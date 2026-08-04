@@ -9,6 +9,7 @@ import Ascii.ImageParser (getRawImageInfo, parseRawImageInfo)
 import Ascii.Downsampling.NearestNeighbour (downsampleNN)
 import Ascii.Downsampling.MajorityVote (downsampleMV)
 import System.IO (hFlush, stdout)
+import Ascii.Downsampling.ImageConverter (juicyToMatrix)
 
 -- Prompt helper that flushes stdout immediately so text appears before input
 prompt :: String -> IO String
@@ -67,6 +68,7 @@ mainFunc = do
                   
                   algoChoice <- getAlgorithm
                   let convertedImage = convertRGB8 dynImg :: Image PixelRGB8
+                  let imageMatrix = juicyToMatrix convertedImage
           
                   -- Execute based on selected algorithm or skip entirely
                   case algoChoice of
@@ -83,6 +85,6 @@ mainFunc = do
                       "3" -> do
                           putStrLn "Rendering original image without downsampling..."
                           -- Pass the original width and height dynamically to your renderer
-                          renderImage convertedImage width height 0 0
+                          renderImage imageMatrix width height 0 0
 
                       _   -> putStrLn "Unexpected error occurred."

@@ -1,0 +1,13 @@
+ascii-generator-exe: Prelude.!!: index too large
+CallStack (from HasCallStack):
+  error, called at libraries/ghc-internal/src/GHC/Internal/List.hs:1689:14 in ghc-internal:GHC.Internal.List
+  tooLarge, called at libraries/ghc-internal/src/GHC/Internal/List.hs:1699:50 in ghc-internal:GHC.Internal.List
+  !!, called at src/Ascii/Downsampling/NearestNeighbour.hs:11:50 in ascii-generator-0.1.0.0-e1Svf1mIBE13c1jth9hsU:Ascii.Downsampling.NearestNeighbour
+HasCallStack backtrace:
+  collectBacktraces, called at libraries/ghc-internal/src/GHC/Internal/Exception.hs:169:13 in ghc-internal:GHC.Internal.Exception
+  toExceptionWithBacktrace, called at libraries/ghc-internal/src/GHC/Internal/Exception.hs:204:5 in ghc-internal:GHC.Internal.Exception
+  error, called at libraries/ghc-internal/src/GHC/Internal/List.hs:1689:14 in ghc-internal:GHC.Internal.List
+  tooLarge, called at libraries/ghc-internal/src/GHC/Internal/List.hs:1699:50 in ghc-internal:GHC.Internal.List
+  !!, called at src/Ascii/Downsampling/NearestNeighbour.hs:11:50 in ascii-generator-0.1.0.0-e1Svf1mIBE13c1jth9hsU:Ascii.Downsampling.NearestNeighbour
+
+

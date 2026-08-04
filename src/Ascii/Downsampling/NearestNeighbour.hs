@@ -11,7 +11,7 @@ getNNDownsampledPixel :: [[PixelRGB8]] -> PixelRGB8
 getNNDownsampledPixel pixelMatrix = (pixelMatrix !! 0) !! 0
 
 -- Controls the flow of downsampling with NN
-downsampleNN :: Image PixelRGB8 -> Int -> IO (Image PixelRGB8)
+downsampleNN :: Image PixelRGB8 -> Int -> IO ( [[PixelRGB8]] )
 downsampleNN image desiredSize = do
     let pixelMatrix = juicyToMatrix image
 
@@ -19,8 +19,6 @@ downsampleNN image desiredSize = do
 
     let chunkSize = getChunkSize width desiredSize 
     
-    putStrLn ("Downsampling to " ++ show desiredSize ++ " px with chunk size of " ++ show chunkSize ++ " px")
-
     let chunkedImage = chunkPixelMatrix pixelMatrix height chunkSize 0
 
     let listOfChunks = getListOfChunks chunkedImage desiredSize chunkSize 0 0
@@ -29,8 +27,4 @@ downsampleNN image desiredSize = do
 
     let downsampledMatrix = listToMatrix desiredSize downsampledChunks
 
-    return ( matrixToImage downsampledMatrix )
-
-
-
-
+    return downsampledMatrix 

@@ -24,6 +24,8 @@ dependencies:
 - JuicyPixels
 
 ghc-options:
+- -g
+- -rtsopts
 - -Wall
 - -Wcompat
 - -Widentities

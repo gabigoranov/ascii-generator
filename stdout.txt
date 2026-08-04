@@ -1,0 +1,13 @@
+Enter image path: Original Width: 32 Original Height: 32
+Choose an operation mode:
+1) Nearest Neighbour Downsampling (NN)
+2) Majority Vote Downsampling (MV)
+3) No Downsampling (Use Original Size)
+Enter choice (1, 2, or 3): Enter output size (max 128 pixels): Downsampling to 16 px with chunk size of 2 px
+Image was chunked
+Downsampling...
+Downsampled
+Matrix was downsampled: 17, 16
+Image was downsampled
+Width: 16 Height: 16
+Got image pixellAt: 0 0

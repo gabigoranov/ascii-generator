@@ -1,7 +1,6 @@
 module Ascii.Downsampling.ImageConverter (
     juicyToMatrix,
-    listToMatrix,
-    matrixToImage 
+    listToMatrix
 ) where
 import Codec.Picture
 
@@ -20,14 +19,3 @@ listToMatrix _ [] = [] -- Base Case: An empty list returns an empty matrix
 listToMatrix chunkSize xs = 
     -- Grab the first row, then recursively process the rest of the list
     take chunkSize xs : listToMatrix chunkSize (drop chunkSize xs)
-
--- Generate the final image using the JuicyPixels recursive generateImage funciton
-matrixToImage :: [[PixelRGB8]] -> Image PixelRGB8
-matrixToImage pixelMatrix = generateImage generatePixel width height
-  where
-    -- Determine the height (rows) and width (cols)
-    height = length pixelMatrix
-    width  = if height > 0 then length (pixelMatrix !! 0) else 0
-
-    -- Grab the pixel at row 'y' and column 'x'
-    generatePixel x y = (pixelMatrix !! y) !! x
