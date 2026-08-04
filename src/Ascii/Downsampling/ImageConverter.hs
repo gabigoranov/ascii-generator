@@ -2,6 +2,7 @@ module Ascii.Downsampling.ImageConverter (
     juicyToMatrix,
     listToMatrix
 ) where
+
 import Codec.Picture
 
 -- Converts the JuicyPixels image to a useable matrix

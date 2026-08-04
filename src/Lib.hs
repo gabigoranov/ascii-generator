@@ -57,7 +57,7 @@ mainFunc = do
     case readingDynImgResult of
        Left errorMessage ->
           putStrLn ("Failed to load image: " ++ errorMessage)
-      
+
        Right (dynImg, metadata) -> do
           case parseRawImageInfo (getRawImageInfo metadata) of
               Left errorMessage ->
@@ -65,26 +65,26 @@ mainFunc = do
 
               Right (width, height) -> do
                   putStrLn ("Original Width: " ++ show width ++ " Original Height: " ++ show height)
-                  
+ 
                   algoChoice <- getAlgorithm
-                  let convertedImage = convertRGB8 dynImg :: Image PixelRGB8
-                  let imageMatrix = juicyToMatrix convertedImage
-          
+                  let juicyImage = convertRGB8 dynImg :: Image PixelRGB8
+                  let pixelMatrix = juicyToMatrix juicyImage
+ 
                   -- Execute based on selected algorithm or skip entirely
                   case algoChoice of
                       "1" -> do
                           targetSize <- getOutputSize
-                          downsampledImage <- downsampleNN convertedImage targetSize
+                          let downsampledImage = downsampleNN pixelMatrix targetSize
                           renderImage downsampledImage targetSize targetSize 0 0
 
                       "2" -> do
                           targetSize <- getOutputSize
-                          downsampledImage <- downsampleMV convertedImage targetSize
+                          let downsampledImage = downsampleMV pixelMatrix targetSize
                           renderImage downsampledImage targetSize targetSize 0 0
 
                       "3" -> do
                           putStrLn "Rendering original image without downsampling..."
                           -- Pass the original width and height dynamically to your renderer
-                          renderImage imageMatrix width height 0 0
+                          renderImage pixelMatrix width height 0 0
 
                       _   -> putStrLn "Unexpected error occurred."

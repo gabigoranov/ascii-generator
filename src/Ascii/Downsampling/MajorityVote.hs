@@ -34,13 +34,13 @@ getMVDownsampledPixel pixelMatrix =
     let flattened = concat pixelMatrix
 
         perceivedBrightnessMap = map ( normalizePerceivedBrightness . calculatePerceivedBrightness ) flattened
-       
+
         bucketsMap = map toBucket perceivedBrightnessMap 
-       
+
         (majorityBucket, _) = findMajority ( countBuckets perceivedBrightnessMap )
-       
+
         maybeIndexOfMajorityBucket = findFirstBucketIndex majorityBucket bucketsMap 
-       
+
         finalIndex = 
            case maybeIndexOfMajorityBucket of
                Just idx -> idx
@@ -49,19 +49,16 @@ getMVDownsampledPixel pixelMatrix =
     in flattened !! finalIndex 
 
 
-downsampleMV :: Image PixelRGB8 -> Int -> IO ([[PixelRGB8]])
-downsampleMV image desiredSize = do
-    let pixelMatrix = juicyToMatrix image
-
+downsampleMV :: [[PixelRGB8]] -> Int -> [[PixelRGB8]]
+downsampleMV pixelMatrix desiredSize =
     let (height, width) = (length pixelMatrix, length (pixelMatrix !! 0))
 
-    let chunkSize = getChunkSize width desiredSize 
+        chunkSize = getChunkSize width desiredSize 
+ 
+        chunkedImage = chunkPixelMatrix pixelMatrix height chunkSize 0
+ 
+        listOfChunks = getListOfChunks chunkedImage desiredSize chunkSize 0 0
 
-    let chunkedImage = chunkPixelMatrix pixelMatrix height chunkSize 0
+        downsampledChunks = map getMVDownsampledPixel listOfChunks 
 
-    let listOfChunks = getListOfChunks chunkedImage desiredSize chunkSize 0 0
-
-    let downsampledChunks = map getMVDownsampledPixel listOfChunks 
-
-    let downsampledMatrix = listToMatrix desiredSize downsampledChunks
-    return downsampledMatrix
+    in listToMatrix desiredSize downsampledChunks
