@@ -1,19 +1,21 @@
 module Ascii.Downsampling.DynamicImageChunker (
     getChunkCoverage,
     getBoundaries,
+    chunkPixelMatrixHorizontally,
     chunkPixelList,
-    chunkPixelMatrix,
     getListOfChunks
 ) where
 
 import Codec.Picture
 
 -- Calculates the floating point number of pixels ach chunk needs to consider
+-- Can be used for chunk width or height calculation
 getChunkCoverage :: Int -> Int -> Float
-getChunkCoverage width desiredWidth =
-    fromIntegral width / fromIntegral desiredWidth 
+getChunkCoverage size desiredSize =
+    fromIntegral size / fromIntegral desiredSize 
 
 -- Creates a lis tof boundaries based on the image size and avgChunkCoverage 
+-- Can be used for horizontal and vertical boundaries
 -- Example Boundaries: 0, 3, 7, etc. -> (0 -> 3), (4 -> 7), (8 -> ...)
 getBoundaries :: Int -> Float -> Float -> [Int]
 getBoundaries size chunkCoverage idx =
@@ -26,6 +28,8 @@ getBoundaries size chunkCoverage idx =
         then [currentBoundary]
         else currentBoundary : getBoundaries size chunkCoverage nextIdx 
 
+-- Calculages the chunk size ( wdith or height based on the given boundaries )
+-- TODO: Switch from using chunkIdx to boundaryIdx
 getChunkSizeFromBoundary :: [Int] -> Int -> Int
 getChunkSizeFromBoundary boundaries chunkIdx = 
     let pixelsUpToBoundaryCount = boundaries !! ( chunkIdx + 1 )
@@ -34,51 +38,59 @@ getChunkSizeFromBoundary boundaries chunkIdx =
 
 -- Convert a row of pixels into chunks
 chunkPixelList :: [PixelRGB8] -> [Int] -> Int -> [[PixelRGB8]]
-chunkPixelList pixels boundaries idx = 
-    if (idx + 1) >= length boundaries
+chunkPixelList pixels horizontalBoundaries idx =
+    if (idx + 1) >= length horizontalBoundaries
         then []
         else 
             let
-                pixelsUpToBoundaryCount = boundaries !! ( idx + 1 )
+                pixelsUpToBoundaryCount = horizontalBoundaries !! ( idx + 1 )
                 pixelsUpToBoundary = take pixelsUpToBoundaryCount pixels
 
-                chunk = drop ( boundaries !! idx ) pixelsUpToBoundary 
+                chunk = drop ( horizontalBoundaries !! idx ) pixelsUpToBoundary 
 
-            in chunk : chunkPixelList pixels boundaries ( idx + 1 )
+            in chunk : chunkPixelList pixels horizontalBoundaries ( idx + 1 )
 
 -- Returns a list of chunked pixel arrays 
--- Example: [1, 1, 1, 1, 1], -> [[1, 1], [1, 1, 1]],
---          [1, 1, 1, 1, 1],    [[1, 1], [1, 1, 1]],
---          [1, 1, 1, 1, 1],    [[1, 1], [1, 1, 1]],
---          [1, 1, 1, 1, 1]     [[1, 1], [1, 1, 1]]
-chunkPixelMatrix :: [[PixelRGB8]] -> Int -> [Int] -> Int -> [[[PixelRGB8]]]
-chunkPixelMatrix pixelMatrix rows boundaries currRow =
-    if currRow >= rows
-        then []
-        else
-            let currPixelRow = pixelMatrix !! currRow
-
-                chunkedRow = chunkPixelList currPixelRow boundaries 0
-
-            in chunkedRow : chunkPixelMatrix pixelMatrix rows boundaries ( currRow + 1 )
-
--- Returns a one dimensional list of chunks in a specified size ( Example: [2x2], [3x3], etc. )
-getListOfChunks :: [[[PixelRGB8]]] -> [Int] -> Int -> Int -> [[[PixelRGB8]]]
-getListOfChunks chunkedByRowMatrix boundaries currChunkIdx currRow =
-    let 
-        totalChunksCount = length boundaries - 1
+-- Example: [1, 1, 1,  1, 1, 1, 1], -> [[1, 1, 1],  [1, 1, 1, 1]], <- vertical group 0 ( later it will be converted into a list of chunks like this )
+--
+--          [1, 1, 1,  1, 1, 1, 1],    [[1, 1, 1],  [1, 1, 1, 1]], <- vertical group 1
+--          [1, 1, 1,  1, 1, 1, 1],    [[1, 1, 1],  [1, 1, 1, 1]],
+--          [1, 1, 1,  1, 1, 1, 1],    [[1, 1, 1],  [1, 1, 1, 1]],
+--
+--          [1, 1, 1,  1, 1, 1, 1]     [[1, 1, 1],  [1, 1, 1, 1]]  <- vertical group 2
+chunkPixelMatrixHorizontally :: [[PixelRGB8]] -> [Int] -> Int -> [[[PixelRGB8]]]
+chunkPixelMatrixHorizontally pixelMatrix horizontalBoundaries currRow =
+    let rows = length pixelMatrix
     in 
-        if currChunkIdx >= totalChunksCount -- if we have ran out of chunks on the row
-            then 
-                let chunkSize = getChunkSizeFromBoundary boundaries 1 -- go down by the amount for the first chunk in the next row
-                in if currRow > ((length chunkedByRowMatrix) - chunkSize)
-                    then []
-                    else getListOfChunks chunkedByRowMatrix boundaries 0 (currRow + chunkSize)
+        if currRow >= rows
+            then []
             else
-                let chunkSize = getChunkSizeFromBoundary boundaries currChunkIdx
-                    remainingRows = drop currRow chunkedByRowMatrix -- slice only the remaining rows to not get stuck
-                    chunkedRows = take chunkSize remainingRows
-                    heads = map (\row -> row !! currChunkIdx) chunkedRows
-                in heads : getListOfChunks chunkedByRowMatrix boundaries (currChunkIdx + 1) currRow
+                let currPixelRow = pixelMatrix !! currRow
+
+                    chunkedRow = chunkPixelList currPixelRow horizontalBoundaries 0
+
+                in chunkedRow : chunkPixelMatrixHorizontally pixelMatrix horizontalBoundaries ( currRow + 1 )
+
+-- Returns a one dimensional list of chunks in a specified size ( Example: [2x1], [3x1], [2x2], [3x2], etc. )
+-- Look at chunkPixelMatrixHorizontally
+getListOfChunks :: [[[PixelRGB8]]] -> [Int] -> [Int] -> Int -> Int -> [[[PixelRGB8]]]
+getListOfChunks chunkedByRowMatrix horizontalBoundaries verticalBoundaries horizontalChunkIdx verticalGroupIdx =
+    let totalChunkCols = length horizontalBoundaries - 1 -- TODO: Do not start boundaries from 0
+        totalRowsInCurrentVerticalGroup = getChunkSizeFromBoundary verticalBoundaries verticalGroupIdx
+    in 
+        if horizontalChunkIdx >= totalChunkCols -- if we have ran out of chunks on the row
+            then 
+                if verticalGroupIdx + 1 >= length verticalBoundaries - 1 -- stop when there is no next v group
+                    then []
+                    else getListOfChunks chunkedByRowMatrix horizontalBoundaries verticalBoundaries 0 (verticalGroupIdx + 1)
+            else
+                let totalUseableRows = verticalBoundaries !! ( verticalGroupIdx + 1 ) 
+                    totalRowsBeforeStartOfVerticalGroup = totalUseableRows - totalRowsInCurrentVerticalGroup 
+
+                    useablePixelRows = take totalUseableRows chunkedByRowMatrix 
+                    pixelRowsInCurrentVerticalGroup = drop totalRowsBeforeStartOfVerticalGroup useablePixelRows 
+
+                    heads = map (\row -> row !! horizontalChunkIdx ) pixelRowsInCurrentVerticalGroup 
+                in heads : getListOfChunks chunkedByRowMatrix horizontalBoundaries verticalBoundaries (horizontalChunkIdx + 1) verticalGroupIdx
 
 

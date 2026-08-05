@@ -74,17 +74,25 @@ uniformChunking matrix desiredSize =
 
     in ImageChunker.getListOfChunks chunkedImage desiredSize chunkSize 0 0
 
--- Placeholder for Dynamic Chunking logic
-dynamicChunking :: [[PixelRGB8]] -> Int -> [[[PixelRGB8]]]
-dynamicChunking matrix desiredWidth = 
+-- Scales the output height to preserve the image's aspect ratio
+getProportionalHeight :: Int -> Int -> Int -> Int
+getProportionalHeight width height desiredWidth =
+    round (fromIntegral desiredWidth * fromIntegral height / fromIntegral width)
+
+-- Dynamic Chunking logic using separate horizontal and vertical boundaries
+dynamicChunking :: [[PixelRGB8]] -> Int -> Int -> [[[PixelRGB8]]]
+dynamicChunking matrix desiredWidth desiredHeight = 
     let 
         (height, width) = (length matrix, length (matrix !! 0))
 
-        chunkCoverage = DynamicImageChunker.getChunkCoverage width desiredWidth
-        boundaries = DynamicImageChunker.getBoundaries width chunkCoverage 0
+        horizontalChunkCoverage = DynamicImageChunker.getChunkCoverage width desiredWidth
+        horizontalBoundaries = DynamicImageChunker.getBoundaries width horizontalChunkCoverage 0
 
-        chunkedByRowMatrix = DynamicImageChunker.chunkPixelMatrix matrix height boundaries 0
-    in DynamicImageChunker.getListOfChunks chunkedByRowMatrix boundaries 0 0
+        verticalGroupCoverage = DynamicImageChunker.getChunkCoverage height desiredHeight 
+        verticalBoundaries = DynamicImageChunker.getBoundaries height verticalGroupCoverage 0
+
+        chunkedByRowMatrix = DynamicImageChunker.chunkPixelMatrixHorizontally matrix horizontalBoundaries 0
+    in DynamicImageChunker.getListOfChunks chunkedByRowMatrix horizontalBoundaries verticalBoundaries 0 0
 
 -- Main program flow
 mainFunc :: IO ()
@@ -117,23 +125,31 @@ mainFunc = do
                           chunkChoice <- getChunkingStrategy
                           targetSize  <- getOutputSize
 
+                          let desiredHeight = getProportionalHeight width height targetSize
                           let listOfChunks = case chunkChoice of
                                   "1" -> uniformChunking rawPixelMatrix targetSize
-                                  _   -> dynamicChunking rawPixelMatrix targetSize
+                                  _   -> dynamicChunking rawPixelMatrix targetSize desiredHeight
 
                           let downsampledImage = downsampleNN listOfChunks targetSize
-                          renderImage downsampledImage targetSize targetSize 0 0
+                          let renderedHeight = case chunkChoice of
+                                  "1" -> targetSize
+                                  _   -> desiredHeight
+                          renderImage downsampledImage targetSize renderedHeight 0 0
 
                       "2" -> do
                           chunkChoice <- getChunkingStrategy
                           targetSize  <- getOutputSize
 
+                          let desiredHeight = getProportionalHeight width height targetSize
                           let listOfChunks = case chunkChoice of
                                   "1" -> uniformChunking rawPixelMatrix targetSize
-                                  _   -> dynamicChunking rawPixelMatrix targetSize
+                                  _   -> dynamicChunking rawPixelMatrix targetSize desiredHeight
 
                           let downsampledImage = downsampleMV listOfChunks targetSize
-                          renderImage downsampledImage targetSize targetSize 0 0
+                          let renderedHeight = case chunkChoice of
+                                  "1" -> targetSize
+                                  _   -> desiredHeight
+                          renderImage downsampledImage targetSize renderedHeight 0 0
 
                       "3" -> do
                           putStrLn "Rendering original image without downsampling..."
