@@ -10,6 +10,8 @@ import Ascii.Downsampling.NearestNeighbour (downsampleNN)
 import Ascii.Downsampling.MajorityVote (downsampleMV)
 import System.IO (hFlush, stdout)
 import Ascii.Downsampling.ImageConverter (juicyToMatrix)
+import Ascii.Downsampling.DynamicImageChunker as DynamicImageChunker
+import qualified Ascii.Downsampling.ImageChunker as ImageChunker
 
 -- Prompt helper that flushes stdout immediately so text appears before input
 prompt :: String -> IO String
@@ -33,7 +35,20 @@ getOutputSize = do
             putStrLn "Error: Please enter a valid integer."
             getOutputSize
 
--- Safely get the algorithm selection (including the new "No Downsampling" option)
+-- Safely get the chunking strategy selection
+getChunkingStrategy :: IO String
+getChunkingStrategy = do
+    putStrLn "Choose a chunking strategy:"
+    putStrLn "1) Uniform Chunking"
+    putStrLn "2) Dynamic Chunking"
+    choice <- prompt "Enter choice (1 or 2): "
+    if choice `elem` ["1", "2"]
+        then return choice
+        else do
+            putStrLn "Error: Invalid choice."
+            getChunkingStrategy
+
+-- Safely get the algorithm selection (including the "No Downsampling" option)
 getAlgorithm :: IO String
 getAlgorithm = do
     putStrLn "Choose an operation mode:"
@@ -46,6 +61,30 @@ getAlgorithm = do
         else do
             putStrLn "Error: Invalid choice."
             getAlgorithm
+
+-- Placeholder for Uniform Chunking logic
+uniformChunking :: [[PixelRGB8]] -> Int -> [[[PixelRGB8]]]
+uniformChunking matrix desiredSize = 
+    let 
+        (rows, cols) = (length matrix, length (matrix !! 0))
+
+        chunkSize = ImageChunker.getChunkSize cols desiredSize 
+
+        chunkedImage = ImageChunker.chunkPixelMatrix matrix rows chunkSize 0
+
+    in ImageChunker.getListOfChunks chunkedImage desiredSize chunkSize 0 0
+
+-- Placeholder for Dynamic Chunking logic
+dynamicChunking :: [[PixelRGB8]] -> Int -> [[[PixelRGB8]]]
+dynamicChunking matrix desiredWidth = 
+    let 
+        (height, width) = (length matrix, length (matrix !! 0))
+
+        chunkCoverage = DynamicImageChunker.getChunkCoverage width desiredWidth
+        boundaries = DynamicImageChunker.getBoundaries width chunkCoverage 0
+
+        chunkedByRowMatrix = DynamicImageChunker.chunkPixelMatrix matrix height boundaries 0
+    in DynamicImageChunker.getListOfChunks chunkedByRowMatrix boundaries 0 0
 
 -- Main program flow
 mainFunc :: IO ()
@@ -65,26 +104,40 @@ mainFunc = do
 
               Right (width, height) -> do
                   putStrLn ("Original Width: " ++ show width ++ " Original Height: " ++ show height)
- 
+
+                  -- 1. Ask for Downsampling Algorithm first
                   algoChoice <- getAlgorithm
+
                   let juicyImage = convertRGB8 dynImg :: Image PixelRGB8
-                  let pixelMatrix = juicyToMatrix juicyImage
- 
-                  -- Execute based on selected algorithm or skip entirely
+                  let rawPixelMatrix = juicyToMatrix juicyImage
+
+                  -- 2. Execute branch based on selected algorithm
                   case algoChoice of
                       "1" -> do
-                          targetSize <- getOutputSize
-                          let downsampledImage = downsampleNN pixelMatrix targetSize
+                          chunkChoice <- getChunkingStrategy
+                          targetSize  <- getOutputSize
+
+                          let listOfChunks = case chunkChoice of
+                                  "1" -> uniformChunking rawPixelMatrix targetSize
+                                  _   -> dynamicChunking rawPixelMatrix targetSize
+
+                          let downsampledImage = downsampleNN listOfChunks targetSize
                           renderImage downsampledImage targetSize targetSize 0 0
 
                       "2" -> do
-                          targetSize <- getOutputSize
-                          let downsampledImage = downsampleMV pixelMatrix targetSize
+                          chunkChoice <- getChunkingStrategy
+                          targetSize  <- getOutputSize
+
+                          let listOfChunks = case chunkChoice of
+                                  "1" -> uniformChunking rawPixelMatrix targetSize
+                                  _   -> dynamicChunking rawPixelMatrix targetSize
+
+                          let downsampledImage = downsampleMV listOfChunks targetSize
                           renderImage downsampledImage targetSize targetSize 0 0
 
                       "3" -> do
                           putStrLn "Rendering original image without downsampling..."
-                          -- Pass the original width and height dynamically to your renderer
-                          renderImage pixelMatrix width height 0 0
+                          -- Pass raw [[PixelRGB8]] directly to the renderer without chunking
+                          renderImage rawPixelMatrix width height 0 0
 
                       _   -> putStrLn "Unexpected error occurred."

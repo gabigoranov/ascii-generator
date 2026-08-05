@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Ascii.CharRamp
+      Ascii.Downsampling.DynamicImageChunker
       Ascii.Downsampling.ImageChunker
       Ascii.Downsampling.ImageConverter
       Ascii.Downsampling.MajorityVote

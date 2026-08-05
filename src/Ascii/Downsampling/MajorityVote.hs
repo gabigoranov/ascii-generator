@@ -49,16 +49,8 @@ getMVDownsampledPixel pixelMatrix =
     in flattened !! finalIndex 
 
 
-downsampleMV :: [[PixelRGB8]] -> Int -> [[PixelRGB8]]
-downsampleMV pixelMatrix desiredSize =
-    let (height, width) = (length pixelMatrix, length (pixelMatrix !! 0))
-
-        chunkSize = getChunkSize width desiredSize 
- 
-        chunkedImage = chunkPixelMatrix pixelMatrix height chunkSize 0
- 
-        listOfChunks = getListOfChunks chunkedImage desiredSize chunkSize 0 0
-
+downsampleMV :: [[[PixelRGB8]]] -> Int -> [[PixelRGB8]]
+downsampleMV listOfChunks desiredSize =
+    let
         downsampledChunks = map getMVDownsampledPixel listOfChunks 
-
     in listToMatrix desiredSize downsampledChunks
