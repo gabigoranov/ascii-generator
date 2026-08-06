@@ -28,8 +28,9 @@ normalizeLuma :: Float -> Float
 normalizeLuma brightness = brightness / 255.0
 
 -- Classify a brightness in a bracket from 0 - 9 to map to 10 possible brightness ascii
--- TODO: rework to classify into any given bracket based on a given amount of brackets
-getBrightnessBracket :: Float -> Int
-getBrightnessBracket x
-    | x == 1.00  = 9
-    | otherwise = truncate (abs x * 10) `mod` 10
+getBrightnessBracket :: Int -> Float -> Int
+getBrightnessBracket totalBracketsCount x
+    | x == 1.00  = totalBracketsCount - 1
+    | x <= 0.0 = 0
+    | otherwise = floor (x * fromIntegral totalBracketsCount) 
+

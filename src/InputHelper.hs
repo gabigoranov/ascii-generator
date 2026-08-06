@@ -1,9 +1,11 @@
 module InputHelper (
     prompt,
     getOutputSize,
-    getAlgorithm
+    getAlgorithm,
+    getAsciiRamp 
 ) where
 import System.IO
+import Ascii.CharRamp (detailedAsciiRamp, asciiRamp)
 
 -- Prompt helper that flushes stdout immediately so text appears before input
 prompt :: String -> IO String
@@ -40,3 +42,21 @@ getAlgorithm = do
         else do
             putStrLn "Error: Invalid choice."
             getAlgorithm
+
+-- Safely get and validate the detail selection
+getAsciiRamp :: IO String
+getAsciiRamp = do
+    putStrLn "Choose a level of detail:"
+    putStrLn "1) Standart - \"@%#*+=-:.\""
+    putStrLn "2) Detailed - \"@$&%#*+=-:. \""
+    choice <- prompt "Enter choice (1 or 2): "
+
+    if choice `elem` ["1", "2"]
+        then 
+            if choice == "1"
+                then return asciiRamp 
+                else return detailedAsciiRamp 
+
+        else do
+            putStrLn "Error: Invalid choice."
+            getAsciiRamp 

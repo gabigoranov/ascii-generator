@@ -3,16 +3,15 @@ module Ascii.ImageRenderer (
 ) where
 
 import Codec.Picture
-import Ascii.CharRamp
 import Ascii.RelativeLuminance (normalizeLuma, getLuma, getBrightnessBracket)
 
 -- TODO: Refactor
-renderImage :: [[PixelRGB8]] -> Int -> Int -> Int -> Int -> IO ()
-renderImage _ _ _ (-1) (-1) = return ()
-renderImage image width height x y = do
+renderImage :: [[PixelRGB8]] -> String -> Int -> Int -> Int -> Int -> IO ()
+renderImage _ _ _ _ (-1) (-1) = return ()
+renderImage image asciiRamp width height x y = do
     let pixel = ( image !! y ) !! x
 
-    let brightnessBracket = (getBrightnessBracket . normalizeLuma . getLuma ) pixel
+    let brightnessBracket = ( ( getBrightnessBracket $ length asciiRamp ) . normalizeLuma . getLuma ) pixel
 
     let asciiChar = asciiRamp !! brightnessBracket :: Char 
  
@@ -27,4 +26,4 @@ renderImage image width height x y = do
         then putStrLn [asciiChar]   
         else putStr [asciiChar, ' ']
 
-    renderImage image width height nextX nextY 
+    renderImage image asciiRamp width height nextX nextY 

@@ -1,7 +1,11 @@
 module Ascii.CharRamp (
-    asciiRamp
+    asciiRamp,
+    detailedAsciiRamp
 ) where
 
 asciiRamp :: String
 asciiRamp = "@%#*+=-:. "
+
+detailedAsciiRamp :: String
+detailedAsciiRamp = "@$&%#*+=-:. "
 
