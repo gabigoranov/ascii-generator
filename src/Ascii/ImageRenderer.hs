@@ -5,6 +5,16 @@ module Ascii.ImageRenderer (
 import Codec.Picture
 import Ascii.RelativeLuminance (normalizeLuma, getLuma, getBrightnessBracket)
 
+-- Wraps an ASCII character in 24-bit terminal color codes
+colorizeChar :: PixelRGB8 -> Char -> String
+colorizeChar (PixelRGB8 r g b) ch =
+    "\ESC[38;2;" 
+    ++ show r ++ ";" 
+    ++ show g ++ ";" 
+    ++ show b ++ "m" 
+    ++ [ch] 
+    ++ "\ESC[0m"
+
 -- TODO: Refactor
 renderImage :: [[PixelRGB8]] -> String -> Int -> Int -> Int -> Int -> IO ()
 renderImage _ _ _ _ (-1) (-1) = return ()
@@ -22,8 +32,9 @@ renderImage image asciiRamp width height x y = do
               | currX < (width - 1)  && currY >= (height - 1) -> (x + 1, y)
               | otherwise                               -> (-1, -1)
 
+        coloured = colorizeChar pixel asciiChar 
     if nextY > y
-        then putStrLn [asciiChar]   
-        else putStr [asciiChar, ' ']
+        then putStrLn coloured  
+        else putStr (coloured ++ " ")
 
     renderImage image asciiRamp width height nextX nextY 
