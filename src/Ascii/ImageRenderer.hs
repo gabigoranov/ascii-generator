@@ -3,17 +3,16 @@ module Ascii.ImageRenderer (
 ) where
 
 import Codec.Picture
-import Ascii.PerceivedBrightness
 import Ascii.CharRamp
+import Ascii.RelativeLuminance (normalizeLuma, getLuma, getBrightnessBracket)
 
+-- TODO: Refactor
 renderImage :: [[PixelRGB8]] -> Int -> Int -> Int -> Int -> IO ()
 renderImage _ _ _ (-1) (-1) = return ()
 renderImage image width height x y = do
     let pixel = ( image !! y ) !! x
 
-    let perceivedBrightness = calculatePerceivedBrightness pixel
-    let normalizedBrightness = normalizePerceivedBrightness perceivedBrightness 
-    let brightnessBracket = getBrightnessBracket normalizedBrightness 
+    let brightnessBracket = (getBrightnessBracket . normalizeLuma . getLuma ) pixel
 
     let asciiChar = asciiRamp !! brightnessBracket :: Char 
  

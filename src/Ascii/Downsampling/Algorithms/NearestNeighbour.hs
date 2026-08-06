@@ -1,4 +1,4 @@
-module Ascii.Downsampling.NearestNeighbour (
+module Ascii.Downsampling.Algorithms.NearestNeighbour (
     downsampleNN
 ) where
 
@@ -12,8 +12,6 @@ getNNDownsampledPixel pixelMatrix = (pixelMatrix !! 0) !! 0
 -- Controls the flow of downsampling with NN
 downsampleNN :: [[[PixelRGB8]]] -> Int -> [[PixelRGB8]]
 downsampleNN listOfChunks desiredSize =
-    let
-        downsampledChunks = map getNNDownsampledPixel listOfChunks 
-    in 
-        listToMatrix desiredSize downsampledChunks
+    let downsampledChunks = map getNNDownsampledPixel listOfChunks 
+    in listToMatrix desiredSize downsampledChunks
 

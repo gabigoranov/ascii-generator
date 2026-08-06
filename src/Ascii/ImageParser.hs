@@ -1,6 +1,7 @@
 module Ascii.ImageParser (
     getRawImageInfo,
-    parseRawImageInfo
+    parseRawImageInfo,
+    getProportionalHeight 
 ) where
 
 import qualified Codec.Picture.Metadata as Metadata
@@ -20,3 +21,9 @@ parseRawImageInfo (rawWidth, rawHeight) =
         (Just _, Nothing ) -> Left "Unknown image height!"
         (Nothing, Just _ ) -> Left "Unknown image width!"
         (Nothing, Nothing) -> Left "Unknown image dimensions!"
+
+-- Scales the output height to preserve the image's aspect ratio
+getProportionalHeight :: Int -> Int -> Int -> Int
+getProportionalHeight width height desiredWidth =
+    round ( ( fromIntegral desiredWidth * fromIntegral height / fromIntegral width ) :: Double)
+

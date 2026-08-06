@@ -26,14 +26,14 @@ source-repository head
 library
   exposed-modules:
       Ascii.CharRamp
+      Ascii.Downsampling.Algorithms.MajorityVote
+      Ascii.Downsampling.Algorithms.NearestNeighbour
       Ascii.Downsampling.DynamicImageChunker
-      Ascii.Downsampling.ImageChunker
       Ascii.Downsampling.ImageConverter
-      Ascii.Downsampling.MajorityVote
-      Ascii.Downsampling.NearestNeighbour
       Ascii.ImageParser
       Ascii.ImageRenderer
-      Ascii.PerceivedBrightness
+      Ascii.RelativeLuminance
+      InputHelper
       Lib
   other-modules:
       Paths_ascii_generator

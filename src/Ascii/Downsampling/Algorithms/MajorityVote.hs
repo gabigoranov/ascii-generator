@@ -1,14 +1,12 @@
-module Ascii.Downsampling.MajorityVote (
+module Ascii.Downsampling.Algorithms.MajorityVote (
     downsampleMV
 ) where
 
 import Codec.Picture
 import Ascii.Downsampling.ImageConverter
-import Ascii.Downsampling.ImageChunker
-import Ascii.PerceivedBrightness (normalizePerceivedBrightness, calculatePerceivedBrightness)
-
 import Data.Ord (comparing)
 import Data.List ( maximumBy, elemIndex, group, sort )
+import Ascii.RelativeLuminance (normalizeLuma, getLuma)
 
 -- Helper: Assigns a brightness value to a specific bucket (e.g., 0.13 becomes 1)
 toBucket :: Float -> Int
@@ -32,25 +30,21 @@ findFirstBucketIndex targetBucket bucketList = elemIndex targetBucket bucketList
 getMVDownsampledPixel :: [[PixelRGB8]] -> PixelRGB8
 getMVDownsampledPixel pixelMatrix =
     let flattened = concat pixelMatrix
-
-        perceivedBrightnessMap = map ( normalizePerceivedBrightness . calculatePerceivedBrightness ) flattened
-
+        perceivedBrightnessMap = map ( normalizeLuma . getLuma ) flattened
         bucketsMap = map toBucket perceivedBrightnessMap 
 
         (majorityBucket, _) = findMajority ( countBuckets perceivedBrightnessMap )
-
         maybeIndexOfMajorityBucket = findFirstBucketIndex majorityBucket bucketsMap 
 
         finalIndex = 
            case maybeIndexOfMajorityBucket of
                Just idx -> idx
-               Nothing -> 0 -- While testing return a fallback to the first pixel
+               Nothing -> 0 -- fallback to the first pixel
 
     in flattened !! finalIndex 
 
 
 downsampleMV :: [[[PixelRGB8]]] -> Int -> [[PixelRGB8]]
 downsampleMV listOfChunks desiredSize =
-    let
-        downsampledChunks = map getMVDownsampledPixel listOfChunks 
+    let downsampledChunks = map getMVDownsampledPixel listOfChunks 
     in listToMatrix desiredSize downsampledChunks

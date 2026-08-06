@@ -6,10 +6,11 @@ module Ascii.Downsampling.ImageConverter (
 import Codec.Picture
 
 -- Converts the JuicyPixels image to a useable matrix
+-- TODO: Rewrite in a readable way
 juicyToMatrix :: Image PixelRGB8 -> [[PixelRGB8]]
 juicyToMatrix img = 
-    [ [ pixelAt img x y | x <- [0 .. imageWidth img - 1] ] 
-    | y <- [0 .. imageHeight img - 1] 
+    [ [ pixelAt img x y | x <- [0 .. imageWidth img - 1] ] -- List comprh to return pixelAt for everything in the row 
+                        | y <- [0 .. imageHeight img - 1] -- List comprh to go through all cols
     ]
 
 -- Converts a flat list of chunks into a matrix based on a given size
