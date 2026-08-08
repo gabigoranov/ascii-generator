@@ -37,6 +37,7 @@ mainFunc = do
 
                   algoChoice <- getAlgorithm
                   asciiRampChoice <- getAsciiRamp
+                  isColoured <- getColourChoice 
 
                   let juicyImage = convertRGB8 dynImg :: Image PixelRGB8
                   let rawPixelMatrix = juicyToMatrix juicyImage
@@ -52,7 +53,7 @@ mainFunc = do
                           let downsampledImage = downsampleNN listOfChunks targetSize
                           let renderedHeight = desiredHeight
 
-                          renderImage downsampledImage asciiRampChoice targetSize renderedHeight 0 0
+                          renderImage downsampledImage asciiRampChoice isColoured targetSize renderedHeight 0 0
 
                       "2" -> do
                           targetSize  <- getOutputSize
@@ -62,10 +63,10 @@ mainFunc = do
 
                           let downsampledImage = downsampleMV listOfChunks targetSize
                           let renderedHeight = desiredHeight
-                          renderImage downsampledImage asciiRampChoice targetSize renderedHeight 0 0
+                          renderImage downsampledImage asciiRampChoice isColoured targetSize renderedHeight 0 0
 
                       "3" -> do
                           putStrLn "Rendering original image without downsampling..."
-                          renderImage rawPixelMatrix asciiRampChoice width height 0 0
+                          renderImage rawPixelMatrix asciiRampChoice isColoured width height 0 0
 
                       _   -> putStrLn "Unexpected error occurred."

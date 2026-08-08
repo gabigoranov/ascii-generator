@@ -2,7 +2,8 @@ module InputHelper (
     prompt,
     getOutputSize,
     getAlgorithm,
-    getAsciiRamp 
+    getAsciiRamp,
+    getColourChoice 
 ) where
 import System.IO
 import Ascii.CharRamp (detailedAsciiRamp, asciiRamp)
@@ -60,3 +61,21 @@ getAsciiRamp = do
         else do
             putStrLn "Error: Invalid choice."
             getAsciiRamp 
+
+getColourChoice :: IO Bool
+getColourChoice = do
+    putStrLn "Choose a colour option:"
+    putStrLn "1) Grayscale"
+    putStrLn "2) Coloured"
+    choice <- prompt "Enter choice (1 or 2):"
+
+
+    if choice `elem` ["1", "2"]
+        then 
+            if choice == "1"
+                then return False
+                else return True
+
+        else do
+            putStrLn "Error: Invalid choice."
+            getColourChoice 
