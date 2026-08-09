@@ -17,7 +17,6 @@ license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
-    CHANGELOG.md
 
 source-repository head
   type: git
@@ -25,7 +24,9 @@ source-repository head
 
 library
   exposed-modules:
+      ArgsConfig
       Ascii.CharRamp
+      Ascii.Downsampling.Algorithms.DownsamplingAlgorithm
       Ascii.Downsampling.Algorithms.MajorityVote
       Ascii.Downsampling.Algorithms.NearestNeighbour
       Ascii.Downsampling.DynamicImageChunker
@@ -33,7 +34,6 @@ library
       Ascii.ImageParser
       Ascii.ImageRenderer
       Ascii.RelativeLuminance
-      InputHelper
       Lib
   other-modules:
       Paths_ascii_generator
@@ -45,6 +45,7 @@ library
   build-depends:
       JuicyPixels
     , base >=4.7 && <5
+    , cmdargs
   default-language: Haskell2010
 
 executable ascii-generator-exe
@@ -60,6 +61,7 @@ executable ascii-generator-exe
       JuicyPixels
     , ascii-generator
     , base >=4.7 && <5
+    , cmdargs
   default-language: Haskell2010
 
 test-suite ascii-generator-test
@@ -76,4 +78,5 @@ test-suite ascii-generator-test
       JuicyPixels
     , ascii-generator
     , base >=4.7 && <5
+    , cmdargs
   default-language: Haskell2010
