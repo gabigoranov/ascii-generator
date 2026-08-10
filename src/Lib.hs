@@ -3,9 +3,9 @@ module Lib
     ( mainFunc
     ) where
 
-import Codec.Picture
+import Codec.Picture hiding (generateImage)
 import Codec.Picture.Metadata
-import Ascii.ImageRenderer (renderImage)
+import Ascii.ImageRenderer (generateImage, renderImage, exportImage)
 import Ascii.ImageParser (getRawImageInfo, parseRawImageInfo, getProportionalHeight)
 import Ascii.Downsampling.Algorithms.DownsamplingAlgorithm (DownsamplingAlgorithm(..))
 import Ascii.Downsampling.Algorithms.NearestNeighbour (downsampleNN)
@@ -50,15 +50,22 @@ mainFunc Config{..} = do
                           let listOfChunks = chunkPixelMatrix rawPixelMatrix outputWidth desiredHeight
 
                           let downsampledImage = downsampleNN listOfChunks outputWidth
-                          let renderedHeight = desiredHeight
 
-                          renderImage downsampledImage asciiRampChoice isColoured outputWidth renderedHeight 0 0
+                          handleRenderedImage asciiRampChoice downsampledImage
 
                       MajorityVote -> do
                           let desiredHeight = getProportionalHeight width height outputWidth
                           let listOfChunks = chunkPixelMatrix rawPixelMatrix outputWidth desiredHeight
 
                           let downsampledImage = downsampleMV listOfChunks outputWidth
-                          let renderedHeight = desiredHeight
 
-                          renderImage downsampledImage asciiRampChoice isColoured outputWidth renderedHeight 0 0
+                          handleRenderedImage asciiRampChoice downsampledImage
+  where
+      -- Render the art to the console, or export it to a file if an output path is given
+      handleRenderedImage :: String -> [[PixelRGB8]] -> IO ()
+      handleRenderedImage asciiRampChoice downsampledImage = do
+          let art = generateImage downsampledImage asciiRampChoice isColoured
+
+          case outputPath of
+              Nothing          -> renderImage art
+              Just outFilePath -> exportImage art outFilePath
