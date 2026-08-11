@@ -45,15 +45,35 @@ stack install
 
 ## Quick Start
 
-### Basic Image Conversion
+### CLI Usage
 
-Convert an image and print the output directly to the terminal:
+All options can be passed directly as command-line flags instead of being prompted:
 
 ```bash
-stack run
+stack run -- [OPTIONS] --imgPath <FILE>
+```
 
-# Enter path to image as prompted.
-# Enter algorithm of choice and desired output size as prompted.
+| Flag | Shorthand | Type | Default | Description |
+| --- | --- | --- | --- | --- |
+| `--imgPath` | `-i` | `FILE` | (required) | The path to the image to convert. |
+| `--algorithmChoice` | `-a` | `NearestNeighbour` / `MajorityVote` | `NearestNeighbour` | The downsampling algorithm used. |
+| `--isColoured` | `-c` | flag | `False` | Whether the art is colourful. |
+| `--levelOfDetail` | `-l` | `Standart` / `Detailed` | `Standart` | The level of detail. |
+| `--outputWidth` | `-w` | `INT` | `64` | The output width of the art (max: 128). |
+| `--outputPath` | `-o` | `FILE` | (prints to terminal) | The export path of the art. |
+
+#### Examples
+
+Basic conversion with all options specified:
+
+```bash
+stack run -- --imgPath cat.jpg --algorithmChoice MajorityVote --isColoured --levelOfDetail Detailed --outputWidth 100 --outputPath art.txt
+```
+
+Convert using shorthand flags:
+
+```bash
+stack run -- -i cat.png -a NearestNeighbour -c -l Standart -w 80 -o art.txt
 ```
 
 ---
@@ -80,10 +100,8 @@ ascii-generator/
 The project is actively under development. The following features are currently work-in-progress or planned for upcoming releases:
 
 - **Custom Configuration**: Customizing font styles, character ramps, and color outputs is not yet supported.
-- **CLI Image Pathing**: Passing image paths or additional arguments via `stack run --path` is not fully wired up yet.
 - **Cross-Platform Pre-built Binaries**: Native standalone executable builds for Windows, GNU/Linux, and macOS are not yet provided in releases.
 - **Test Coverage**: Comprehensive unit test suites and integration tests are currently being written.
-- **Exporting Capabilities**: Direct file saving or exporting of the generated ASCII output is not yet implemented.
 
 ---
 
