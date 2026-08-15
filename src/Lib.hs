@@ -5,6 +5,7 @@ module Lib
 
 import Codec.Picture hiding (generateImage)
 import Codec.Picture.Metadata
+import System.Exit (exitFailure)
 import Ascii.ImageRenderer (generateImage, renderImage, exportImage)
 import Ascii.ImageParser (getRawImageInfo, parseRawImageInfo, getProportionalHeight)
 import Ascii.Downsampling.Algorithms.DownsamplingAlgorithm (DownsamplingAlgorithm(..))
@@ -21,45 +22,48 @@ clearScreen = putStr "\ESC[2J\ESC[1;1H"
 
 -- Main program flow
 mainFunc :: Config -> IO ()
-mainFunc Config{..} = do
-    clearScreen
+mainFunc Config{..} =
+    if null imgPath
+        then putStrLn "Error: no image path provided. Use --imgPath <FILE> (or -i <FILE>)." >> exitFailure
+        else do
+            clearScreen
 
-    readingDynImgResult <- readImageWithMetadata imgPath :: IO (Either String (DynamicImage, Metadatas))
+            readingDynImgResult <- readImageWithMetadata imgPath :: IO (Either String (DynamicImage, Metadatas))
 
-    case readingDynImgResult of
-       Left errorMessage ->
-          putStrLn ("Failed to load image: " ++ errorMessage)
+            case readingDynImgResult of
+               Left errorMessage ->
+                  putStrLn ("Failed to load image: " ++ errorMessage)
 
-       Right (dynImg, metadata) -> do
-          case parseRawImageInfo (getRawImageInfo metadata) of
-              Left errorMessage ->
-                  putStrLn errorMessage 
+               Right (dynImg, metadata) -> do
+                  case parseRawImageInfo (getRawImageInfo metadata) of
+                      Left errorMessage ->
+                          putStrLn errorMessage 
 
-              Right (width, height) -> do
-                  putStrLn ("Original Width: " ++ show width ++ " Original Height: " ++ show height)
+                      Right (width, height) -> do
+                          putStrLn ("Original Width: " ++ show width ++ " Original Height: " ++ show height)
 
-                  let asciiRampChoice = if levelOfDetail == AsciiRamp.Standart then asciiRamp else detailedAsciiRamp 
+                          let asciiRampChoice = if levelOfDetail == AsciiRamp.Standart then asciiRamp else detailedAsciiRamp 
 
-                  let juicyImage = convertRGB8 dynImg :: Image PixelRGB8
-                  let rawPixelMatrix = juicyToMatrix juicyImage
+                          let juicyImage = convertRGB8 dynImg :: Image PixelRGB8
+                          let rawPixelMatrix = juicyToMatrix juicyImage
 
-                  -- Execute branch based on selected algorithm
-                  case algorithmChoice of
-                      NearestNeighbour -> do
-                          let desiredHeight = getProportionalHeight width height outputWidth
-                          let listOfChunks = chunkPixelMatrix rawPixelMatrix outputWidth desiredHeight
+                          -- Execute branch based on selected algorithm
+                          case algorithmChoice of
+                              NearestNeighbour -> do
+                                  let desiredHeight = getProportionalHeight width height outputWidth
+                                  let listOfChunks = chunkPixelMatrix rawPixelMatrix outputWidth desiredHeight
 
-                          let downsampledImage = downsampleNN listOfChunks outputWidth
+                                  let downsampledImage = downsampleNN listOfChunks outputWidth
 
-                          handleRenderedImage asciiRampChoice downsampledImage
+                                  handleRenderedImage asciiRampChoice downsampledImage
 
-                      MajorityVote -> do
-                          let desiredHeight = getProportionalHeight width height outputWidth
-                          let listOfChunks = chunkPixelMatrix rawPixelMatrix outputWidth desiredHeight
+                              MajorityVote -> do
+                                  let desiredHeight = getProportionalHeight width height outputWidth
+                                  let listOfChunks = chunkPixelMatrix rawPixelMatrix outputWidth desiredHeight
 
-                          let downsampledImage = downsampleMV listOfChunks outputWidth
+                                  let downsampledImage = downsampleMV listOfChunks outputWidth
 
-                          handleRenderedImage asciiRampChoice downsampledImage
+                                  handleRenderedImage asciiRampChoice downsampledImage
   where
       -- Render the art to the console, or export it to a file if an output path is given
       handleRenderedImage :: String -> [[PixelRGB8]] -> IO ()
